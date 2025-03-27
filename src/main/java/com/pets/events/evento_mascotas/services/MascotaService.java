@@ -50,7 +50,7 @@ public class MascotaService {
 		if (optionalMascota.isPresent()) {
 			return optionalMascota.get();
 		} else {
-			return null;
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar la mascota con ID: " + id);
 		}
 	}
 	

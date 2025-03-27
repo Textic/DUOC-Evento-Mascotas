@@ -52,7 +52,7 @@ public class EventoService {
         if (optionalEvento.isPresent()) {
             return optionalEvento.get();
         } else {
-            return null;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar el evento con ID: " + id);
         }
     }
 

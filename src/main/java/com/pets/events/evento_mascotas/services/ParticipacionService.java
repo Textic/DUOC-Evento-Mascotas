@@ -57,7 +57,7 @@ public class ParticipacionService {
 		if (optionalParticipacion.isPresent()) {
 			return optionalParticipacion.get();
 		} else {
-			return null;
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar la participacion con ID: " + id);
 		}
 	}
 
