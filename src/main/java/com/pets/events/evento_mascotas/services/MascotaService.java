@@ -33,6 +33,9 @@ public class MascotaService {
 		if (mascota.getTipo() == null || mascota.getTipo() == "") {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El tipo de mascota es requerido.");
 		}
+		if (mascota.getEdad() < 0 || mascota.getEdad() > 30) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La edad de la mascota debe ser un número entre 0 y 20.");
+		}
 		if (mascota.getRaza() == null || mascota.getRaza() == "") {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La raza de la mascota es requerida.");
 		}
