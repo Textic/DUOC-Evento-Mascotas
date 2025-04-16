@@ -1,0 +1,16 @@
+services:
+  oraclexe:
+    image: gvenzl/oracle-xe
+    container_name: oraclexe
+    restart: unless-stopped
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    environment:
+      ORACLE_PASSWORD: "Online.123"
+    volumes:
+      - ./oracle_data:/u01/app/oracle/oradata
+
+volumes:
+  oracle_data:
+    driver: local
