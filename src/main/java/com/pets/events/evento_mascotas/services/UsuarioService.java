@@ -1,9 +1,7 @@
 package com.pets.events.evento_mascotas.services;
 
 import com.pets.events.evento_mascotas.models.Usuario;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
