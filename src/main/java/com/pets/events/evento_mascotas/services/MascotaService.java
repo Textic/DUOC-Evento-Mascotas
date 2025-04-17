@@ -28,16 +28,21 @@ public class MascotaService {
         return repo.findAll();
     }
 
-    public boolean deleteMascota(int id) {
-        if (repo.existsById(id)) {
-            repo.deleteById(id);
-            return true;
-        } else {
-            return false;
-        }
+    public Mascota deleteMascota(int id) {
+        Mascota mascota = repo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar la mascota con ID: " + id));
+        repo.deleteById(id);
+        return mascota;
     }
 
     public boolean existsById(int id) {
         return repo.existsById(id);
+    }
+
+    public Mascota updateMascota(int id, Mascota mascota) {
+        if (!repo.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar la mascota con ID: " + id);
+        }
+        mascota.setId(id);
+        return repo.save(mascota);
     }
 }

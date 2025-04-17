@@ -29,16 +29,21 @@ public class EventoService {
         return repo.findAll();
     }
 
-    public boolean deleteEvento(int id) {
-        if (repo.existsById(id)) {
-            repo.deleteById(id);
-            return true;
-        } else {
-            return false;
-        }
+    public Evento deleteEvento(int id) {
+        Evento evento = repo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar el evento con ID: " + id));
+        repo.deleteById(id);
+        return evento;
     }
 
     public boolean existsById(int id) {
         return repo.existsById(id);
+    }
+
+    public Evento updateEvento(int id, Evento evento) {
+        if (!repo.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar el evento con ID: " + id);
+        }
+        evento.setId(id);
+        return repo.save(evento);
     }
 }

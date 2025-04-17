@@ -12,7 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
-
+import org.springframework.web.bind.annotation.PutMapping;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/mascotas")
@@ -30,21 +31,37 @@ public class MascotaController {
 	
 	@GetMapping("/{id}")
 	public Mascota findMascota(@PathVariable int id) {
+		if (id <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
+		}
 		return mascotaService.findMascota(id);
 	}
 
 	@DeleteMapping("/{id}")
 	public Mascota deleteMascota(@PathVariable int id) {
-		Mascota mascota = mascotaService.findMascota(id);
-		boolean deleted = mascotaService.deleteMascota(id);
-		if (!deleted) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo borrar la mascota con ID: " + id);
+		if (id <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
+		}
+		Mascota mascota = mascotaService.deleteMascota(id);
+		if (mascota == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar la mascota con ID: " + id);
 		}
 		return mascota;
 	}
 
 	@PostMapping
-	public Mascota addMascota(@RequestBody Mascota mascota) {
+	public Mascota addMascota(@Valid @RequestBody Mascota mascota) {
 		return mascotaService.addMascota(mascota);
+	}
+
+	@PutMapping("/{id}")
+	public Mascota updateMascota(@PathVariable int id, @Valid @RequestBody Mascota mascota) {
+		if (id <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
+		}
+		if (mascota.getNombre() == null || mascota.getNombre().isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre de la mascota no puede estar vacío.");
+		}
+		return mascotaService.updateMascota(id, mascota);
 	}
 }

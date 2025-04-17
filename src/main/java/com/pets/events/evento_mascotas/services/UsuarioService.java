@@ -28,4 +28,25 @@ public class UsuarioService {
         }
         return usuario;
     }
+
+    public Usuario addUsuario(Usuario usuario) {
+        if (usuario.getId() != 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El cuerpo de la solicitud no debe contener un ID.");
+        }
+        return repo.save(usuario);
+    }
+
+    public Usuario updateUsuario(int id, Usuario usuario) {
+        if (!repo.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar el usuario con ID: " + id);
+        }
+        usuario.setId(id);
+        return repo.save(usuario);
+    }
+
+    public Usuario deleteUsuario(int id) {
+        Usuario usuario = repo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar el usuario con ID: " + id));
+        repo.deleteById(id);
+        return usuario;
+    }
 }

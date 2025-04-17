@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/eventos")
@@ -29,21 +31,37 @@ public class EventoController {
 
     @GetMapping("/{id}")
     public Evento findEvento(@PathVariable int id) {
+        if (id <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
+        }
         return eventoService.findEvento(id);
     }
 
     @DeleteMapping("/{id}")
     public Evento deleteEvento(@PathVariable int id) {
-        Evento evento = eventoService.findEvento(id);
-        boolean deleted = eventoService.deleteEvento(id);
-        if (!deleted) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo borrar el evento con ID: " + id);
+        if (id <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
+        }
+        Evento evento = eventoService.deleteEvento(id);
+        if (evento == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar el evento con ID: " + id);
         }
         return evento;
     }
 
     @PostMapping
-    public Evento addEvento(@RequestBody Evento evento) {
+    public Evento addEvento(@Valid @RequestBody Evento evento) {
         return eventoService.addEvento(evento);
+    }
+
+    @PutMapping("/{id}")
+    public Evento updateEvento(@PathVariable int id, @Valid @RequestBody Evento evento) {
+        if (id <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
+        }
+        if (evento.getNombre() == null || evento.getNombre().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre del evento no puede estar vacío.");
+        }
+        return eventoService.updateEvento(id, evento);
     }
 }
