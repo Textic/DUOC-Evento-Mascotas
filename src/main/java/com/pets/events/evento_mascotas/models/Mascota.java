@@ -7,10 +7,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "mascotas")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "mascotas")
 public class Mascota {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,8 +19,7 @@ public class Mascota {
 
     @Column(nullable = false)
     @NotBlank(message = "El nombre no puede estar vacío.")
-    @Min(value = 1, message = "El nombre debe tener al menos 1 carácter.")
-    @Max(value = 50, message = "El nombre no puede tener más de 50 caracteres.")
+    @Size(min = 1, max = 50, message = "El nombre debe tener entre 1 y 50 caracteres.")
     private String nombre;
 
     @Column(nullable = false)
@@ -30,14 +29,12 @@ public class Mascota {
 
     @Column(nullable = false)
     @NotBlank(message = "El tipo no puede estar vacío.")
-    @Min(value = 1, message = "La especie debe tener al menos 1 carácter.")
-    @Max(value = 30, message = "La especie no puede tener más de 30 caracteres.")
+    @Size(min = 1, max = 30, message = "La especie debe tener entre 1 y 30 caracteres.")
     private String tipo;
 
     @Column(nullable = false)
     @NotBlank(message = "La raza no puede estar vacía.")
-    @Min(value = 1, message = "La raza debe tener al menos 1 carácter.")
-    @Max(value = 30, message = "La raza no puede tener más de 30 caracteres.")
+    @Size(min = 1, max = 30, message = "La raza debe tener entre 1 y 30 caracteres.")
     private String raza;
 
     @Column(nullable = false)

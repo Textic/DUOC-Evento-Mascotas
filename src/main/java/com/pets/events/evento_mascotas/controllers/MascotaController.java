@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/mascotas")
 public class MascotaController {
@@ -26,11 +28,13 @@ public class MascotaController {
 
 	@GetMapping
 	public List<Mascota> allMascotas() {
+		log.info("GET /mascotas - Listando todas las mascotas");
 		return mascotaService.allMascotas();
 	}
 	
 	@GetMapping("/{id}")
 	public Mascota findMascota(@PathVariable int id) {
+		log.info("GET /mascotas/{} - Buscando mascota con ID: {}", id, id);
 		if (id <= 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
 		}
@@ -39,6 +43,7 @@ public class MascotaController {
 
 	@DeleteMapping("/{id}")
 	public Mascota deleteMascota(@PathVariable int id) {
+		log.info("DELETE /mascotas/{} - Eliminando mascota con ID: {}", id, id);
 		if (id <= 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
 		}
@@ -51,11 +56,13 @@ public class MascotaController {
 
 	@PostMapping
 	public Mascota addMascota(@Valid @RequestBody Mascota mascota) {
+		log.info("POST /mascotas - Agregando nueva mascota: {}", mascota.getNombre());
 		return mascotaService.addMascota(mascota);
 	}
 
 	@PutMapping("/{id}")
 	public Mascota updateMascota(@PathVariable int id, @Valid @RequestBody Mascota mascota) {
+		log.info("PUT /mascotas/{} - Actualizando mascota con ID: {}", id, id);
 		if (id <= 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
 		}

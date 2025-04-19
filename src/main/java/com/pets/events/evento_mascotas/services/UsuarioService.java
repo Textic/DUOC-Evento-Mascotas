@@ -7,11 +7,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import com.pets.events.evento_mascotas.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 @Service
 public class UsuarioService {
     @Autowired
     private UsuarioRepository repo;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     public List<Usuario> allUsuarios() {
         return repo.findAll();
@@ -21,12 +34,23 @@ public class UsuarioService {
         return repo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar el usuario con ID: " + id));
     }
     
-    public Usuario login(String correo, String password) {
+    public String login(String correo, String password) {
         Usuario usuario = repo.findByCorreo(correo);
         if (usuario == null || !usuario.getPassword().equals(password)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas");
         }
-        return usuario;
+
+        // SecretKey key = Jwts.SIG.HS256.key().build();
+        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+
+        String jwt = Jwts.builder()
+                .subject(usuario.getId() + "")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 86400000)) // 1 día de expiración
+                .signWith(key)
+                .compact();
+
+        return jwt;
     }
 
     public Usuario addUsuario(Usuario usuario) {

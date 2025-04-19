@@ -5,7 +5,4 @@ import com.pets.events.evento_mascotas.models.Usuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 	Usuario findByCorreo(String correo);
-	Usuario findByNombre(String nombre);
-	Usuario findByRol(String rol);
-	
 }

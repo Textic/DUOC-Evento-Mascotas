@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/eventos")
 public class EventoController {
@@ -26,11 +28,13 @@ public class EventoController {
 
     @GetMapping
     public List<Evento> allEventos() {
+        log.info("GET /eventos - Listando todos los eventos");
         return eventoService.allEventos();
     }
 
     @GetMapping("/{id}")
     public Evento findEvento(@PathVariable int id) {
+        log.info("GET /eventos/{} - Buscando evento con ID: {}", id, id);
         if (id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
         }
@@ -39,6 +43,7 @@ public class EventoController {
 
     @DeleteMapping("/{id}")
     public Evento deleteEvento(@PathVariable int id) {
+        log.info("DELETE /eventos/{} - Eliminando evento con ID: {}", id, id);
         if (id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
         }
@@ -51,11 +56,13 @@ public class EventoController {
 
     @PostMapping
     public Evento addEvento(@Valid @RequestBody Evento evento) {
+        log.info("POST /eventos - Agregando nuevo evento: {}", evento.getNombre());
         return eventoService.addEvento(evento);
     }
 
     @PutMapping("/{id}")
     public Evento updateEvento(@PathVariable int id, @Valid @RequestBody Evento evento) {
+        log.info("PUT /eventos/{} - Actualizando evento con ID: {}", id, id);
         if (id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
         }
