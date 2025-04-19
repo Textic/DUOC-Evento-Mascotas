@@ -14,7 +14,6 @@ import jakarta.validation.constraints.*;
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Positive(message = "El ID debe ser un número positivo.")
     private int id;
 
     @Column(nullable = false, unique = true)
