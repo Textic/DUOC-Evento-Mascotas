@@ -14,6 +14,10 @@ public class EventoService {
     @Autowired
     private EventoRepository repo;
 
+    public EventoService(EventoRepository eventoRepository) {
+        this.repo = eventoRepository;
+    }
+
     public Evento addEvento(Evento evento) {
         if (evento.getId() != 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El cuerpo de la solicitud no debe contener un ID.");

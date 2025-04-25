@@ -13,6 +13,10 @@ public class MascotaService {
     @Autowired
     private MascotaRepository repo;
 
+    public MascotaService(MascotaRepository mascotaRepository) {
+        this.repo = mascotaRepository;
+    }
+
     public Mascota addMascota(Mascota mascota) {
         if (mascota.getId() != 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El cuerpo de la solicitud no debe contener un ID.");

@@ -21,6 +21,10 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository repo;
 
+    public UsuarioService(UsuarioRepository usuarioRepository) {
+        this.repo = usuarioRepository;
+    }
+
     @Value("${jwt.secret}")
     private String jwtSecret;
 
