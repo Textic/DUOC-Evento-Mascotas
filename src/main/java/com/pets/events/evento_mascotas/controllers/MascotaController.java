@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.CollectionModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @Slf4j
 @RestController
@@ -27,22 +30,36 @@ public class MascotaController {
 	}
 
 	@GetMapping
-	public List<Mascota> allMascotas() {
+	public CollectionModel<EntityModel<Mascota>> allMascotas() {
 		log.info("GET /mascotas - Listando todas las mascotas");
-		return mascotaService.allMascotas();
+		List<EntityModel<Mascota>> mascotas = mascotaService.allMascotas().stream()
+			.map(mascota -> EntityModel.of(mascota,
+				linkTo(methodOn(MascotaController.class).findMascota(mascota.getId())).withSelfRel(),
+				linkTo(methodOn(MascotaController.class).allMascotas()).withRel("mascotas")
+			))
+			.toList();
+		return CollectionModel.of(mascotas,
+			linkTo(methodOn(MascotaController.class).allMascotas()).withSelfRel()
+		);
 	}
 	
 	@GetMapping("/{id}")
-	public Mascota findMascota(@PathVariable int id) {
+	public EntityModel<Mascota> findMascota(@PathVariable int id) {
 		log.info("GET /mascotas/{} - Buscando mascota con ID: {}", id, id);
 		if (id <= 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
 		}
-		return mascotaService.findMascota(id);
+		Mascota mascota = mascotaService.findMascota(id);
+		return EntityModel.of(mascota,
+			linkTo(methodOn(MascotaController.class).findMascota(id)).withSelfRel(),
+			linkTo(methodOn(MascotaController.class).allMascotas()).withRel("mascotas"),
+			linkTo(methodOn(MascotaController.class).deleteMascota(id)).withRel("delete"),
+			linkTo(methodOn(MascotaController.class).updateMascota(id, mascota)).withRel("update")
+		);
 	}
 
 	@DeleteMapping("/{id}")
-	public Mascota deleteMascota(@PathVariable int id) {
+	public EntityModel<Mascota> deleteMascota(@PathVariable int id) {
 		log.info("DELETE /mascotas/{} - Eliminando mascota con ID: {}", id, id);
 		if (id <= 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
@@ -51,17 +68,23 @@ public class MascotaController {
 		if (mascota == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar la mascota con ID: " + id);
 		}
-		return mascota;
+		return EntityModel.of(mascota,
+			linkTo(methodOn(MascotaController.class).allMascotas()).withRel("mascotas")
+		);
 	}
 
 	@PostMapping
-	public Mascota addMascota(@Valid @RequestBody Mascota mascota) {
+	public EntityModel<Mascota> addMascota(@Valid @RequestBody Mascota mascota) {
 		log.info("POST /mascotas - Agregando nueva mascota: {}", mascota.getNombre());
-		return mascotaService.addMascota(mascota);
+		Mascota nueva = mascotaService.addMascota(mascota);
+		return EntityModel.of(nueva,
+			linkTo(methodOn(MascotaController.class).findMascota(nueva.getId())).withSelfRel(),
+			linkTo(methodOn(MascotaController.class).allMascotas()).withRel("mascotas")
+		);
 	}
 
 	@PutMapping("/{id}")
-	public Mascota updateMascota(@PathVariable int id, @Valid @RequestBody Mascota mascota) {
+	public EntityModel<Mascota> updateMascota(@PathVariable int id, @Valid @RequestBody Mascota mascota) {
 		log.info("PUT /mascotas/{} - Actualizando mascota con ID: {}", id, id);
 		if (id <= 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
@@ -69,6 +92,10 @@ public class MascotaController {
 		if (mascota.getNombre() == null || mascota.getNombre().isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre de la mascota no puede estar vacío.");
 		}
-		return mascotaService.updateMascota(id, mascota);
+		Mascota actualizada = mascotaService.updateMascota(id, mascota);
+		return EntityModel.of(actualizada,
+			linkTo(methodOn(MascotaController.class).findMascota(id)).withSelfRel(),
+			linkTo(methodOn(MascotaController.class).allMascotas()).withRel("mascotas")
+		);
 	}
 }
