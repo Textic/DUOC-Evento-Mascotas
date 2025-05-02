@@ -17,6 +17,10 @@ import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.CollectionModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,9 +36,17 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public List<Usuario> allUsuarios() {
+    public CollectionModel<EntityModel<Usuario>> allUsuarios() {
         log.info("GET /usuarios - Listando todos los usuarios");
-        return usuarioService.allUsuarios();
+        List<EntityModel<Usuario>> usuarios = usuarioService.allUsuarios().stream()
+            .map(usuario -> EntityModel.of(usuario,
+                linkTo(methodOn(UsuarioController.class).findUsuario(usuario.getId())).withSelfRel(),
+                linkTo(methodOn(UsuarioController.class).allUsuarios()).withRel("usuarios")
+            ))
+            .toList();
+        return CollectionModel.of(usuarios,
+            linkTo(methodOn(UsuarioController.class).allUsuarios()).withSelfRel()
+        );
     }
 
     @PostMapping("/login")
@@ -49,22 +61,32 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public Usuario findUsuario(@PathVariable int id) {
+    public EntityModel<Usuario> findUsuario(@PathVariable int id) {
         log.info("GET /usuarios/{} - Buscando usuario con ID: {}", id, id);
         if (id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
         }
-        return usuarioService.findUsuario(id);
+        Usuario usuario = usuarioService.findUsuario(id);
+        return EntityModel.of(usuario,
+            linkTo(methodOn(UsuarioController.class).findUsuario(id)).withSelfRel(),
+            linkTo(methodOn(UsuarioController.class).allUsuarios()).withRel("usuarios"),
+            linkTo(methodOn(UsuarioController.class).deleteUsuario(id)).withRel("delete"),
+            linkTo(methodOn(UsuarioController.class).updateUsuario(id, usuario)).withRel("update")
+        );
     }
 
     @PostMapping
-    public Usuario addUsuario(@Valid @RequestBody Usuario usuario) {
+    public EntityModel<Usuario> addUsuario(@Valid @RequestBody Usuario usuario) {
         log.info("POST /usuarios - Agregando nuevo usuario: {}", usuario.getCorreo());
-        return usuarioService.addUsuario(usuario);
+        Usuario nuevo = usuarioService.addUsuario(usuario);
+        return EntityModel.of(nuevo,
+            linkTo(methodOn(UsuarioController.class).findUsuario(nuevo.getId())).withSelfRel(),
+            linkTo(methodOn(UsuarioController.class).allUsuarios()).withRel("usuarios")
+        );
     }
 
     @DeleteMapping("/{id}")
-    public Usuario deleteUsuario(@PathVariable int id) {
+    public EntityModel<Usuario> deleteUsuario(@PathVariable int id) {
         log.info("DELETE /usuarios/{} - Eliminando usuario con ID: {}", id, id);
         if (id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
@@ -73,11 +95,13 @@ public class UsuarioController {
         if (usuario == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo encontrar el usuario con ID: " + id);
         }
-        return usuario;
+        return EntityModel.of(usuario,
+            linkTo(methodOn(UsuarioController.class).allUsuarios()).withRel("usuarios")
+        );
     }
 
     @PutMapping("/{id}")
-    public Usuario updateUsuario(@PathVariable int id, @Valid @RequestBody Usuario usuario) {
+    public EntityModel<Usuario> updateUsuario(@PathVariable int id, @Valid @RequestBody Usuario usuario) {
         log.info("PUT /usuarios/{} - Actualizando usuario con ID: {}", id, id);
         if (id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID debe ser un número positivo.");
@@ -85,6 +109,10 @@ public class UsuarioController {
         if (usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo del usuario no puede estar vacío.");
         }
-        return usuarioService.updateUsuario(id, usuario);
+        Usuario actualizado = usuarioService.updateUsuario(id, usuario);
+        return EntityModel.of(actualizado,
+            linkTo(methodOn(UsuarioController.class).findUsuario(id)).withSelfRel(),
+            linkTo(methodOn(UsuarioController.class).allUsuarios()).withRel("usuarios")
+        );
     }
 }

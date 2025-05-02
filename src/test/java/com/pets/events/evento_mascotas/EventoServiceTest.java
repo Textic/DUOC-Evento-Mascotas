@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.domain.Sort;
 
 import com.pets.events.evento_mascotas.models.Evento;
 import com.pets.events.evento_mascotas.repository.EventoRepository;
