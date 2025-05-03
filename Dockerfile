@@ -6,3 +6,5 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 # docker build -t evento_mascotas:latest .
 # docker run -d -p 8080:8080 -e SPRING_PROFILES_ACTIVE=docker --name evento_mascotas evento_mascotas:latest
+# docker tag evento_mascotas:latest textic/evento_mascotas:latest
+# docker push textic/evento_mascotas:latest
